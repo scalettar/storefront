@@ -10,7 +10,13 @@ import HomePage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shoppage/shoppage.component';
 import SigninPage from './pages/signinpage/signinpage.component';
 
-import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+import {
+  auth,
+  // addCollectionAndDocuments, // Upload collection to firebase
+  createUserProfileDocument
+} from './firebase/firebase.utils';
+
+import { selectCollectionsForPreview } from './redux/shop/shop.selectors';
 import { selectCurrentUser } from './redux/user/user.selectors';
 import { setCurrentUser } from './redux/user/user.actions';
 
@@ -20,6 +26,7 @@ class App extends React.Component {
   unsubscribeFromAuth = null;
 
   componentDidMount() {
+    // const { collectionsArray } = this.props; // Upload collection to firebase
     const { setCurrentUser } = this.props;
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
       if (userAuth) {
@@ -34,6 +41,12 @@ class App extends React.Component {
       } else {
         setCurrentUser(userAuth);
       }
+
+      /* Upload collection to firebase */
+      // addCollectionAndDocuments(
+      //   'collections', 
+      //   collectionsArray.map(({ title, items }) => ({ title, items }))
+      // );
     });
   }
 
@@ -49,12 +62,12 @@ class App extends React.Component {
           <Route exact path='/' component={HomePage} />
           <Route path='/shop' component={ShopPage} />
           <Route exact path='/checkout' component={CheckoutPage} />
-          <Route exact page='/signin' render={() => 
+          <Route exact page='/signin' render={() =>
             this.props.currentUser ? (
               <Redirect to='/' />
             ) : (
-              <SigninPage />
-            )} 
+                <SigninPage />
+              )}
           />
         </Switch>
       </div>
@@ -63,6 +76,7 @@ class App extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
+  collectionsArray: selectCollectionsForPreview,
   currentUser: selectCurrentUser
 })
 
